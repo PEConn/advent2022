@@ -1,12 +1,12 @@
 fun day01part1(input: String): Int {
-    val maxElf = input.split("\n\n").maxOfOrNull { processElf(it) }
+    val maxElf = input.split("\n\n").maxOfOrNull(::processElf)
     return maxElf!!
 }
 
 fun day01part2(input: String): Int {
     val topElves = input
         .split("\n\n")
-        .map { processElf(it) }
+        .map(::processElf)
         .sortedDescending()
         .take(3)
 
@@ -14,4 +14,4 @@ fun day01part2(input: String): Int {
 }
 
 fun processElf(calories: String): Int =
-    calories.split("\n").filterNot { it.isEmpty() }.map{ it.toInt() }.sum()
+    calories.split("\n").filterNot { it.isEmpty() }.sumOf { it.toInt() }
