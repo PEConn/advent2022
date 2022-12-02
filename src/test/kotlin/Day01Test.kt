@@ -3,7 +3,7 @@ import org.junit.jupiter.api.Test
 import java.io.File
 import kotlin.test.assertEquals
 
-const val GIVEN_EXAMPLE: String = """
+private const val GIVEN_EXAMPLE: String = """
 1000
 2000
 3000
