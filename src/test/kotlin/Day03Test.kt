@@ -99,6 +99,6 @@ class Day03Test {
     @Test
     fun challenge2() {
         val input = File("input/day03.txt").readText(Charsets.UTF_8)
-        assertEquals(0, part2(input))
+        assertEquals(2683, part2(input))
     }
 }
