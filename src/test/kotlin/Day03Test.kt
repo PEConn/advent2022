@@ -1,3 +1,5 @@
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import java.io.File
 import kotlin.test.assertEquals
@@ -26,16 +28,23 @@ private fun scoreChar(c: Char): Int {
     }
 }
 
-private fun part1(input: String): Int =
-    input.lines()
-        .filterNot { it.isEmpty() }
-        .sumOf { scoreChar(findDuplicate(it)) }
+private fun part1(input: String): Int {
+    var result = 0
+    runBlocking(Dispatchers.Default) {
+        result = input.lines()
+            .filterNot { it.isEmpty() }
+            .pmap { scoreChar(findDuplicate(it)) }
+            .sum()
+    }
+    return result
+}
 
 private fun findCommonItem(a: String, b: String, c:String): Char {
     val aChars = HashSet(a.toList())
     val bChars = HashSet(b.toList())
     return c.toList().first { aChars.contains(it) && bChars.contains(it) }
 }
+
 
 private fun part2(input: String): Int {
     return input.lines()

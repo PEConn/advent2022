@@ -78,11 +78,11 @@ fun toScorePart2(game: String): Int {
     return myMove!!.score + desiredOutcome.score
 }
 
-fun day01part1(input: String): Int {
+private fun part1(input: String): Int {
     return input.lines().filterNot { it.isEmpty() }.sumOf { toScorePart1(it) }
 }
 
-fun day01part2(input: String): Int {
+private fun part2(input: String): Int {
     return input.lines().filterNot { it.isEmpty() }.sumOf { toScorePart2(it) }
 }
 
@@ -90,23 +90,23 @@ class Day02Test {
 
     @Test
     fun example1() {
-        assertEquals(15, day01part1(GIVEN_EXAMPLE))
+        assertEquals(15, part1(GIVEN_EXAMPLE))
     }
 
     @Test
     fun challenge1() {
         val input = File("input/day02.txt").readText(Charsets.UTF_8)
-        assertEquals(10595, day01part1(input))
+        assertEquals(10595, part1(input))
     }
 
     @Test
     fun example2() {
-        assertEquals(12, day01part2(GIVEN_EXAMPLE))
+        assertEquals(12, part2(GIVEN_EXAMPLE))
     }
 
     @Test
     fun challenge2() {
         val input = File("input/day02.txt").readText(Charsets.UTF_8)
-        assertEquals(9541, day01part2(input))
+        assertEquals(9541, part2(input))
     }
 }
