@@ -8,7 +8,7 @@ B X
 C Z
 """
 
-enum class Move(val score: Int) {
+private enum class Move(val score: Int) {
     ROCK(1), PAPER(2), SCISSORS(3)
 }
 
