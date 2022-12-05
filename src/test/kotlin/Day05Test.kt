@@ -1,6 +1,5 @@
-import Day05.parseProblem
-import Day05.runProblem
-import Day05.summarizeState
+package day05
+
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.util.*
@@ -19,92 +18,83 @@ move 2 from 2 to 1
 move 1 from 1 to 2
 """
 
-// TODO: Figure out a nicer way to namespace things.
-object Day05 {
-    data class State(val stacks: List<Stack<Char>>)
-    data class Move(val amount: Int, val from: Int, val to: Int)
-    data class Problem(val stacks: State, val moves: List<Move>)
 
-    fun parseProblem(input: String, numStacks: Int): Problem {
-        var stacks = (0 until numStacks).map { Stack<Char>() }
-        var moves = ArrayList<Move>()
-        var parsingStacks = true
+data class State(val stacks: List<Stack<Char>>)
+data class Move(val amount: Int, val from: Int, val to: Int)
+data class Problem(val stacks: State, val moves: List<Move>)
+fun parseProblem(input: String, numStacks: Int): Problem {
+    var stacks = (0 until numStacks).map { Stack<Char>() }
+    var moves = ArrayList<Move>()
+    var parsingStacks = true
 
-        input.lines().forEach {
-            if (it.isEmpty()) {
-                // Do nothing.
-            } else if (it.startsWith(" 1 ")) {
-                parsingStacks = false
-            } else if (parsingStacks) {
-                for (s in 0 until numStacks) {
-                    val c = it[1 + s*4]
-                    if (c != ' ') {
-                        stacks[s].add(0, c)
-                    }
-                }
-            } else {
-                val parts = it.split(' ')
-                moves.add(Move(parts[1].toInt(), parts[3].toInt(), parts[5].toInt()))
-            }
-        }
-
-        return Problem(State(stacks), moves)
-    }
-
-    fun runProblem(problem: Problem, part1: Boolean): State {
-        val state = problem.stacks // This modifies things, right?
-        val moves = problem.moves
-
-        moves.forEach {
-            if (part1) {
-                for (i in 0 until it.amount) {
-                    state.stacks[it.to - 1].push(state.stacks[it.from - 1].pop())
-                }
-            } else {
-                val insertionPoint = state.stacks[it.to - 1].size
-                for (i in 0 until it.amount) {
-                    state.stacks[it.to - 1].add(insertionPoint, state.stacks[it.from - 1].pop())
+    input.lines().forEach {
+        if (it.isEmpty()) {
+            // Do nothing.
+        } else if (it.startsWith(" 1 ")) {
+            parsingStacks = false
+        } else if (parsingStacks) {
+            for (s in 0 until numStacks) {
+                val c = it[1 + s*4]
+                if (c != ' ') {
+                    stacks[s].add(0, c)
                 }
             }
+        } else {
+            val parts = it.split(' ')
+            moves.add(Move(parts[1].toInt(), parts[3].toInt(), parts[5].toInt()))
         }
-
-        return state
     }
 
-    fun summarizeState(state: State): String =
-        state.stacks.map { it.peek() }.joinToString("")
-
+    return Problem(State(stacks), moves)
 }
 
-fun <A> List<A>.toStack(): Stack<A> {
-    val stack = Stack<A>()
-    stack.addAll(this)
-    return stack
+fun Problem.run(part1: Boolean): State {
+    val state = stacks // This modifies things, right?
+    val moves = moves
+
+    moves.forEach {
+        if (part1) {
+            for (i in 0 until it.amount) {
+                state.stacks[it.to - 1].push(state.stacks[it.from - 1].pop())
+            }
+        } else {
+            val insertionPoint = state.stacks[it.to - 1].size
+            for (i in 0 until it.amount) {
+                state.stacks[it.to - 1].add(insertionPoint, state.stacks[it.from - 1].pop())
+            }
+        }
+    }
+
+    return state
 }
+fun State.summarize(): String =
+    stacks.map(Stack<Char>::peek).joinToString("")
+
+fun <A> List<A>.toStack(): Stack<A> = Stack<A>().also { it.addAll(this) }
 
 private fun part1(input: String, numStacks: Int): String {
-    return summarizeState(runProblem(parseProblem(input, numStacks), true))
+    return parseProblem(input, numStacks).run(true).summarize()
 }
 
 private fun part2(input: String, numStacks: Int): String {
-    return summarizeState(runProblem(parseProblem(input, numStacks), false))
+    return parseProblem(input, numStacks).run(false).summarize()
 }
 
 class Day05Test {
     @Test
     fun testParseProblem() {
-        val expected = Day05.Problem(
-            stacks = Day05.State(listOf(
+        val expected = Problem(
+            stacks = State(listOf(
                 // These are reversed from the sample.
                 listOf('Z', 'N').toStack(),
                 listOf('M', 'C', 'D').toStack(),
                 listOf('P').toStack(),
             )),
             moves = listOf(
-                Day05.Move(1, 2, 1),
-                Day05.Move(3, 1, 3),
-                Day05.Move(2, 2, 1),
-                Day05.Move(1, 1, 2),
+                Move(1, 2, 1),
+                Move(3, 1, 3),
+                Move(2, 2, 1),
+                Move(1, 1, 2),
             )
         )
         assertEquals(expected, parseProblem(GIVEN_EXAMPLE, 3))
@@ -112,7 +102,7 @@ class Day05Test {
 
     @Test
     fun example1() {
-        val expected = Day05.State(
+        val expected = State(
             listOf(
                 // These are reversed from the sample.
                 listOf('C').toStack(),
@@ -121,10 +111,10 @@ class Day05Test {
             )
         )
 
-        val result = runProblem(parseProblem(GIVEN_EXAMPLE, 3), true)
+        val result = parseProblem(GIVEN_EXAMPLE, 3).run(true)
 
         assertEquals(expected, result)
-        assertEquals("CMZ", summarizeState(result))
+        assertEquals("CMZ", result.summarize())
     }
 
     @Test
