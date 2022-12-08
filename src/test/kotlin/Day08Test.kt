@@ -6,16 +6,19 @@ import kotlin.test.assertEquals
 
 data class Coord(val x: Int, val y: Int)
 
-data class Map(private val map: List<List<Int>>) {
+data class Map(val contents: List<List<Int>>) {
     val width: Int
-        get() = map[0].size
+        get() = contents[0].size
     val height: Int
-        get() = map.size
+        get() = contents.size
 
-    fun at(c: Coord) = map[c.y][c.x]
+    val coords: List<Coord>
+        get() = (0 until height)
+            .flatMap { y -> (0 until width).map{x -> Coord(x, y)} }
+    fun at(c: Coord) = contents[c.y][c.x]
 
-    fun getRow(y: Int) = map[y]
-    fun getColumn(x: Int) = map.map { it[x] }
+    fun getRow(y: Int) = contents[y]
+    fun getColumn(x: Int) = contents.map { it[x] }
     fun getRowCoords(y: Int) = (0 until width).map { Coord(it, y) }
     fun getColumnCoords(x: Int) = (0 until height).map { Coord(x, it) }
 }
@@ -89,27 +92,43 @@ fun getViewingDistances(trees: List<Int>): List<Int> {
                 viewingDistanceForHeight[potentialHeight] = 1
             }
         }
-
-        println(viewingDistanceForHeight)
     }
 
-//    val viewingDistances: MutableList<Int> = mutableListOf()
-//
-//    var topHeightSoFar = trees[0]
-//    var mostVisibleTreeIndex = 0
-//    viewingDistances.add(0)
-//
-//    trees.drop(1).forEachIndexed { i, height ->
-//        if (height >= topHeightSoFar) {
-//            viewingDistances.add(i - mostVisibleTreeIndex)
-//            topHeightSoFar = height
-//            mostVisibleTreeIndex = i
-//        } else {
-//            viewingDistances.add(1)
-//        }
-//    }
-
     return viewingDistances
+}
+
+enum class Direction {
+    LEFT, UP, RIGHT, DOWN
+}
+
+// TODO: Don't recalculate everything so many times.
+//fun getViewingDistanceMap(map: Map, direction: Direction): Map {
+//    if (direction == Direction.LEFT) {
+//        return Map(map.contents.map(::getViewingDistances))
+//    } else if (direction == Direction.RIGHT) {
+//        return Map(map.contents.reversed().map(::getViewingDistances).reversed())
+//    } else if (direction == Direction.UP) {
+//
+//    } else {
+//
+//    }
+//}
+
+fun getViewingDistance(map: Map, coord: Coord): Int {
+    println(coord)
+    val leftDistance = getViewingDistances(map.getRow(coord.y))[coord.x]
+    val rightDistance = getViewingDistances(map.getRow(coord.y).reversed()).reversed()[coord.x]
+    val topDistance = getViewingDistances(map.getColumn(coord.x))[coord.y]
+    val bottomDistance = getViewingDistances(map.getColumn(coord.x).reversed()).reversed()[coord.y]
+
+    return leftDistance * rightDistance * topDistance * bottomDistance
+}
+
+fun part2(input: String): Int {
+    val map = parseMap(input)
+    return map.coords.maxOf {
+        getViewingDistance(map, it)
+    }
 }
 
 const val GIVEN_EXAMPLE: String = """
@@ -152,13 +171,28 @@ class Day08Test {
 
     @Test
     fun getViewingDistance() {
-//        assertEquals(listOf(0, 1, 1, 1),
-//            getViewingDistances(listOf(0, 0, 0, 0)))
-//        assertEquals(listOf(0, 1, 1, 1),
-//            getViewingDistances(listOf(0, 1, 0, 0)))
-//        assertEquals(listOf(0, 1, 1, 2),
-//            getViewingDistances(listOf(0, 1, 0, 1)))
+        assertEquals(listOf(0, 1, 1, 1),
+            getViewingDistances(listOf(0, 0, 0, 0)))
+        assertEquals(listOf(0, 1, 1, 1),
+            getViewingDistances(listOf(0, 1, 0, 0)))
         assertEquals(listOf(0, 1, 1, 2),
+            getViewingDistances(listOf(0, 1, 0, 1)))
+        assertEquals(listOf(0, 1, 1, 3),
             getViewingDistances(listOf(0, 1, 0, 2)))
+    }
+
+    @Test
+    fun example2() {
+        val map = parseMap(GIVEN_EXAMPLE)
+
+        assertEquals(4, getViewingDistance(map, Coord(2, 1)))
+        assertEquals(8, getViewingDistance(map, Coord(2, 3)))
+        assertEquals(8, part2(GIVEN_EXAMPLE))
+    }
+
+    @Test
+    fun challenge2() {
+        val input = File("input/day08.txt").readText(Charsets.UTF_8)
+        assertEquals(0, part2(input))
     }
 }
