@@ -193,6 +193,6 @@ class Day08Test {
     @Test
     fun challenge2() {
         val input = File("input/day08.txt").readText(Charsets.UTF_8)
-        assertEquals(0, part2(input))
+        assertEquals(201600, part2(input))
     }
 }
