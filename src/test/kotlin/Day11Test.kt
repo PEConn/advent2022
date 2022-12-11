@@ -67,7 +67,7 @@ class Day11Test {
 
     @Test
     fun challenge2() {
-        assertEquals(0, part2(TEST_INPUT.duplicate(), 2 * 3 * 5 * 7 * 11 * 13 * 17 * 19))
+        assertEquals(12729522272, part2(TEST_INPUT.duplicate(), 2 * 3 * 5 * 7 * 11 * 13 * 17 * 19))
     }
 }
 
