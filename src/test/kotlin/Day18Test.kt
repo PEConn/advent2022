@@ -113,7 +113,6 @@ class Day18Test {
     @Test
     fun challenge2() {
         val input = File("input/day18.txt").readText(Charsets.UTF_8)
-        // Not: 2579, too low.
         assertEquals(2588, part2(input))
     }
 }
