@@ -1,6 +1,7 @@
 package day15
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import pmap
@@ -80,8 +81,12 @@ fun part2(input: String, maxY: Long): Long {
         .filterNot(String::isEmpty)
         .map(String::toSensor)
 
+    return part2(sensors, 0, maxY)
+}
+
+fun part2(sensors: List<Sensor>, minY: Long, maxY: Long): Long {
     // This approach breaks down if the beacon is on the edge of the area.
-    (0..maxY).forEach { y ->
+    (minY..maxY).forEach { y ->
         val excludedLocations = sensors
             .mapNotNull { it.getOverlapAtY(y) }
             .combineOverlaps()
@@ -94,6 +99,32 @@ fun part2(input: String, maxY: Long): Long {
 
     return -1
 }
+
+fun part2parallel(input: String, maxY: Long): Long {
+    val sensors = input.lines()
+        .filterNot(String::isEmpty)
+        .map(String::toSensor)
+
+    val jobs = 25
+    // 50: 2.4s
+    // 25: 2.4s
+    // 16: 2.2s
+    // 8: 2.9s
+    // 4: 2.3s
+    val results = (0 until jobs).map{ 0L }.toMutableList()
+    val step = maxY / jobs
+
+    runBlocking {
+        for (i in 0 until jobs) {
+            launch {
+                results[i] = part2(sensors, i * step, (i + 1) * step)
+            }
+        }
+    }
+
+    return results.first { it != -1L }
+}
+
 class Day15Test {
     @Test
     fun testToSensor() {
@@ -147,7 +178,7 @@ class Day15Test {
     }
 
     @Test
-    fun part2() {
+    fun challenge2() {
         val input = File("input/day15.txt").readText(Charsets.UTF_8)
         val maxY = 4000000L
 
@@ -157,6 +188,13 @@ class Day15Test {
         //   maxY = 400000L, 288ms
         //   maxY = 4000000L, 2472ms
         assertEquals(12691026767556, part2(input, 4000000L))
+    }
+
+    @Test
+    fun challenge2parallel() {
+        val input = File("input/day15.txt").readText(Charsets.UTF_8)
+
+        assertEquals(12691026767556, part2parallel(input, 4000000L))
     }
 }
 
